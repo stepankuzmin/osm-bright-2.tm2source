@@ -6,18 +6,53 @@ _prefs:
   saveCenter: true
 attribution: ''
 center: 
-  - 123.5742
-  - 42.3261
-  - 5
+  - 131.8143
+  - 43.0036
+  - 12
 description: OSM Bright 2
 Layer: 
-  - id: water
+  - id: waterway
     Datasource: 
-      file: /Users/stepan/Documents/data/water-polygons-split-3857/water_polygons.shp
-      type: shape
+      dbname: osm
+      extent: -20037508.34,-20037508.34,20037508.34,20037508.34
+      geometry_field: geometry
+      geometry_table: ''
+      host: ''
+      key_field: ''
+      max_size: 512
+      password: ''
+      port: ''
+      table: |-
+        ( SELECT * FROM (
+            -- waterway_low
+            SELECT geometry, type as class
+            FROM osm_waterways
+            WHERE geometry && !bbox!
+              AND type IN ('river', 'canal')
+              AND z(!scale_denominator!) BETWEEN 8 AND 12
+        
+            -- waterway_med
+            UNION ALL
+            SELECT geometry, type as class
+            FROM osm_waterways
+            WHERE geometry && !bbox!
+              AND type IN ('river', 'canal', 'stream')
+              AND z(!scale_denominator!) BETWEEN 13 AND 14
+        
+            -- waterway_high
+            UNION ALL
+            SELECT geometry, type as class
+            FROM osm_waterways
+            WHERE geometry && !bbox!
+              AND type IN ('river', 'canal', 'stream', 'ditch', 'drain')
+              AND z(!scale_denominator!) >= 15
+          ) AS QUERY
+        ) AS data
+      type: postgis
+      user: ''
     description: ''
     fields: 
-      FID: Number
+      class: String
     properties: 
       "buffer-size": 8
     srs: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over
@@ -52,7 +87,7 @@ Layer:
             SELECT geometry, type as class, area
             FROM osm_landusages
             WHERE geometry && !bbox!
-              AND z(!scale_denominator!) > 12
+              AND z(!scale_denominator!) >= 12
           ) AS QUERY
          ORDER BY area DESC
         ) AS data
@@ -62,6 +97,16 @@ Layer:
     fields: 
       area: Number
       class: String
+    properties: 
+      "buffer-size": 8
+    srs: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over
+  - id: water
+    Datasource: 
+      file: /Users/stepan/Documents/data/water-polygons-split-3857/water_polygons.shp
+      type: shape
+    description: ''
+    fields: 
+      FID: Number
     properties: 
       "buffer-size": 8
     srs: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over
