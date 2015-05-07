@@ -3,10 +3,10 @@
 <Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
 
 <Parameters>
-  <Parameter name="center">136.3403,49.1961,6</Parameter>
+  <Parameter name="center">131.8171,43.0029,8</Parameter>
   <Parameter name="description"><![CDATA[OSM Bright 2]]></Parameter>
   <Parameter name="format">pbf</Parameter>
-  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"class":"String","area":"Number"}},{"id":"water","description":"","fields":{}},{"id":"waterway","description":"","fields":{"class":"String"}}]}]]></Parameter>
+  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","class":"String","area":"Number"}},{"id":"water","description":"","fields":{}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}}]}]]></Parameter>
   <Parameter name="maxzoom">8</Parameter>
   <Parameter name="minzoom">0</Parameter>
   <Parameter name="name"><![CDATA[OSM Bright 2]]></Parameter>
@@ -23,27 +23,27 @@
        <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
        <Parameter name="geometry_table"><![CDATA[]]></Parameter>
        <Parameter name="host"><![CDATA[]]></Parameter>
-       <Parameter name="key_field"><![CDATA[]]></Parameter>
+       <Parameter name="key_field"><![CDATA[osm_id]]></Parameter>
        <Parameter name="max_size"><![CDATA[512]]></Parameter>
        <Parameter name="password"><![CDATA[]]></Parameter>
        <Parameter name="port"><![CDATA[]]></Parameter>
        <Parameter name="table"><![CDATA[( SELECT * FROM (
     -- landuse_gen0
-    SELECT geometry, type as class, area
+    SELECT geometry, osm_id, type as class, area
     FROM osm_landusages_gen0
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) BETWEEN 4 AND 9
 
     -- landuse_gen1
     UNION ALL
-    SELECT geometry, type as class, area
+    SELECT geometry, osm_id, type as class, area
     FROM osm_landusages_gen1
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) BETWEEN 10 AND 12
 
     -- landuse
     UNION ALL
-    SELECT geometry, type as class, area
+    SELECT geometry, osm_id, type as class, area
     FROM osm_landusages
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) >= 12
@@ -114,13 +114,13 @@
        <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
        <Parameter name="geometry_table"><![CDATA[]]></Parameter>
        <Parameter name="host"><![CDATA[]]></Parameter>
-       <Parameter name="key_field"><![CDATA[]]></Parameter>
+       <Parameter name="key_field"><![CDATA[osm_id]]></Parameter>
        <Parameter name="max_size"><![CDATA[512]]></Parameter>
        <Parameter name="password"><![CDATA[]]></Parameter>
        <Parameter name="port"><![CDATA[]]></Parameter>
        <Parameter name="table"><![CDATA[( SELECT * FROM (
     -- waterway_low
-    SELECT geometry, type as class
+    SELECT geometry, osm_id, type as class
     FROM osm_waterways
     WHERE geometry && !bbox!
       AND type IN ('river', 'canal')
@@ -128,7 +128,7 @@
 
     -- waterway_med
     UNION ALL
-    SELECT geometry, type as class
+    SELECT geometry, osm_id, type as class
     FROM osm_waterways
     WHERE geometry && !bbox!
       AND type IN ('river', 'canal', 'stream')
@@ -136,12 +136,36 @@
 
     -- waterway_high
     UNION ALL
-    SELECT geometry, type as class
+    SELECT geometry, osm_id, type as class
     FROM osm_waterways
     WHERE geometry && !bbox!
       AND type IN ('river', 'canal', 'stream', 'ditch', 'drain')
       AND z(!scale_denominator!) >= 15
   ) AS QUERY
+) AS data]]></Parameter>
+       <Parameter name="type"><![CDATA[postgis]]></Parameter>
+       <Parameter name="user"><![CDATA[]]></Parameter>
+    </Datasource>
+  </Layer>
+
+<Layer name="aeroway"
+  buffer-size="8"
+  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+    
+    <Datasource>
+       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
+       <Parameter name="extent"><![CDATA[-20037508.34,-20037508.34,20037508.34,20037508.34]]></Parameter>
+       <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
+       <Parameter name="geometry_table"><![CDATA[]]></Parameter>
+       <Parameter name="host"><![CDATA[]]></Parameter>
+       <Parameter name="key_field"><![CDATA[]]></Parameter>
+       <Parameter name="max_size"><![CDATA[512]]></Parameter>
+       <Parameter name="password"><![CDATA[]]></Parameter>
+       <Parameter name="port"><![CDATA[]]></Parameter>
+       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, type
+  FROM osm_aeroways
+  WHERE geometry && !bbox!
+    AND z(!scale_denominator!) >= 12
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
        <Parameter name="user"><![CDATA[]]></Parameter>
