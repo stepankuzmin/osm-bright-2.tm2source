@@ -3,11 +3,11 @@
 <Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
 
 <Parameters>
-  <Parameter name="center">131.8171,43.0029,8</Parameter>
+  <Parameter name="center">131.8887,43.1193,14</Parameter>
   <Parameter name="description"><![CDATA[OSM Bright 2]]></Parameter>
   <Parameter name="format">pbf</Parameter>
-  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","class":"String","area":"Number"}},{"id":"water","description":"","fields":{}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}}]}]]></Parameter>
-  <Parameter name="maxzoom">8</Parameter>
+  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","class":"String","area":"Number"}},{"id":"water","description":"","fields":{}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}},{"id":"building","description":"","fields":{"osm_id":"Number","type":"String","name":"String","area":"Number"}}]}]]></Parameter>
+  <Parameter name="maxzoom">14</Parameter>
   <Parameter name="minzoom">0</Parameter>
   <Parameter name="name"><![CDATA[OSM Bright 2]]></Parameter>
 </Parameters>
@@ -166,6 +166,31 @@
   FROM osm_aeroways
   WHERE geometry && !bbox!
     AND z(!scale_denominator!) >= 12
+) AS data]]></Parameter>
+       <Parameter name="type"><![CDATA[postgis]]></Parameter>
+       <Parameter name="user"><![CDATA[]]></Parameter>
+    </Datasource>
+  </Layer>
+
+<Layer name="building"
+  buffer-size="8"
+  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+    
+    <Datasource>
+       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
+       <Parameter name="extent"><![CDATA[-20037508.34,-20037508.34,20037508.34,20037508.34]]></Parameter>
+       <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
+       <Parameter name="geometry_table"><![CDATA[]]></Parameter>
+       <Parameter name="host"><![CDATA[]]></Parameter>
+       <Parameter name="key_field"><![CDATA[osm_id]]></Parameter>
+       <Parameter name="max_size"><![CDATA[512]]></Parameter>
+       <Parameter name="password"><![CDATA[]]></Parameter>
+       <Parameter name="port"><![CDATA[]]></Parameter>
+       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, type, name, area
+    FROM osm_buildings
+    WHERE geometry && !bbox!
+      AND z(!scale_denominator!) >= 12
+    ORDER BY ST_YMin(ST_Envelope(geometry)) DESC
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
        <Parameter name="user"><![CDATA[]]></Parameter>

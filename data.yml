@@ -6,9 +6,9 @@ _prefs:
   saveCenter: true
 attribution: ''
 center: 
-  - 131.8171
-  - 43.0029
-  - 8
+  - 131.8887
+  - 43.1193
+  - 14
 description: OSM Bright 2
 Layer: 
   - id: landuse
@@ -177,6 +177,35 @@ Layer:
     properties: 
       "buffer-size": 8
     srs: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over
-maxzoom: 8
+  - id: building
+    Datasource: 
+      dbname: osm
+      extent: -20037508.34,-20037508.34,20037508.34,20037508.34
+      geometry_field: geometry
+      geometry_table: ''
+      host: ''
+      key_field: osm_id
+      max_size: 512
+      password: ''
+      port: ''
+      table: |-
+        ( SELECT geometry, osm_id, type, name, area
+            FROM osm_buildings
+            WHERE geometry && !bbox!
+              AND z(!scale_denominator!) >= 12
+            ORDER BY ST_YMin(ST_Envelope(geometry)) DESC
+        ) AS data
+      type: postgis
+      user: ''
+    description: ''
+    fields: 
+      area: Number
+      name: String
+      osm_id: Number
+      type: String
+    properties: 
+      "buffer-size": 8
+    srs: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over
+maxzoom: 14
 minzoom: 0
 name: OSM Bright 2
