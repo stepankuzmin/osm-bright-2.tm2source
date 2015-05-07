@@ -3,10 +3,10 @@
 <Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
 
 <Parameters>
-  <Parameter name="center">-15.3809,-18.0623,3</Parameter>
+  <Parameter name="center">123.5742,42.3261,5</Parameter>
   <Parameter name="description"><![CDATA[OSM Bright 2]]></Parameter>
   <Parameter name="format">pbf</Parameter>
-  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"water","description":"","fields":{"FID":"Number"}},{"id":"landuse","description":"","fields":{"type":"String","area":"Number"}}]}]]></Parameter>
+  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"water","description":"","fields":{"FID":"Number"}},{"id":"landuse","description":"","fields":{"class":"String","area":"Number"}}]}]]></Parameter>
   <Parameter name="maxzoom">16</Parameter>
   <Parameter name="minzoom">0</Parameter>
   <Parameter name="name"><![CDATA[OSM Bright 2]]></Parameter>
@@ -39,21 +39,21 @@
        <Parameter name="port"><![CDATA[]]></Parameter>
        <Parameter name="table"><![CDATA[( SELECT * FROM (
     -- landuse_gen0
-    SELECT geometry, type, area
+    SELECT geometry, type as class, area
     FROM osm_landusages_gen0
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) BETWEEN 4 AND 9
 
     -- landuse_gen1
     UNION ALL
-    SELECT geometry, type, area
+    SELECT geometry, type as class, area
     FROM osm_landusages_gen1
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) BETWEEN 10 AND 12
 
     -- landuse
     UNION ALL
-    SELECT geometry, type, area
+    SELECT geometry, type as class, area
     FROM osm_landusages
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) > 12
