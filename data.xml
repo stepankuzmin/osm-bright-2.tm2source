@@ -3,10 +3,10 @@
 <Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
 
 <Parameters>
-  <Parameter name="center">115.8398,44.9026,4</Parameter>
+  <Parameter name="center">131.8909,43.1224,14</Parameter>
   <Parameter name="description"><![CDATA[OSM Bright 2]]></Parameter>
   <Parameter name="format">pbf</Parameter>
-  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","class":"String","area":"Number"}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"water","description":"","fields":{}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}},{"id":"building","description":"","fields":{"osm_id":"Number","type":"String","name":"String","area":"Number"}},{"id":"landuse_overlay","description":"","fields":{"osm_id":"Number","type":"String","area":"Number"}},{"id":"tunnel","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","stylegroup":"String"}},{"id":"road","description":"","fields":{"osm_id":"Number","type":"String","tunnel":"Number","bridge":"Number","access":"String","render":"String","class":"String"}},{"id":"bridge","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"admin","description":"","fields":{"osm_id":"Number","admin_level":"Number","maritime":"Number","disputed":"Number"}}]}]]></Parameter>
+  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","type":"String","area":"Number","class":"String"}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"water","description":"","fields":{}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}},{"id":"building","description":"","fields":{"osm_id":"Number","type":"String","name":"String","area":"Number"}},{"id":"landuse_overlay","description":"","fields":{"osm_id":"Number","type":"String","class":"String"}},{"id":"tunnel","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"road","description":"","fields":{"osm_id":"Number","type":"String","tunnel":"Number","bridge":"Number","access":"String","render":"String","class":"String"}},{"id":"bridge","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"admin","description":"","fields":{"osm_id":"Number","admin_level":"Number","maritime":"Number","disputed":"Number"}}]}]]></Parameter>
   <Parameter name="maxzoom">14</Parameter>
   <Parameter name="minzoom">0</Parameter>
   <Parameter name="name"><![CDATA[OSM Bright 2]]></Parameter>
@@ -29,24 +29,57 @@
        <Parameter name="port"><![CDATA[]]></Parameter>
        <Parameter name="table"><![CDATA[( SELECT * FROM (
     -- landuse_gen0
-    SELECT geometry, osm_id, type as class, area
+    SELECT geometry, osm_id, type, area,
+    CASE
+      WHEN type IN ('cemetery') THEN 'cemetery'
+      WHEN type IN ('hospital') THEN 'hospital'
+      WHEN type IN ('industrial') THEN 'industrial'
+      WHEN type IN ('park', 'common', 'garden', 'playground') THEN 'park'
+      WHEN type IN ('parking') THEN 'parking'
+      WHEN type IN ('pitch') THEN 'pitch'
+      WHEN type IN ('sand') THEN 'sand'
+      WHEN type IN ('school', 'university') THEN 'school'
+      WHEN type IN ('wood') THEN 'wood'
+      ELSE 'other' END AS class
     FROM osm_landusages_gen0
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) BETWEEN 4 AND 9
 
     -- landuse_gen1
     UNION ALL
-    SELECT geometry, osm_id, type as class, area
+    SELECT geometry, osm_id, type, area,
+    CASE
+      WHEN type IN ('cemetery') THEN 'cemetery'
+      WHEN type IN ('hospital') THEN 'hospital'
+      WHEN type IN ('industrial') THEN 'industrial'
+      WHEN type IN ('park', 'common', 'garden', 'playground') THEN 'park'
+      WHEN type IN ('parking') THEN 'parking'
+      WHEN type IN ('pitch') THEN 'pitch'
+      WHEN type IN ('sand') THEN 'sand'
+      WHEN type IN ('school', 'university') THEN 'school'
+      WHEN type IN ('wood') THEN 'wood'
+      ELSE 'other' END AS class
     FROM osm_landusages_gen1
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) BETWEEN 10 AND 12
 
     -- landuse
     UNION ALL
-    SELECT geometry, osm_id, type as class, area
+    SELECT geometry, osm_id, type, area,
+    CASE
+      WHEN type IN ('cemetery') THEN 'cemetery'
+      WHEN type IN ('hospital') THEN 'hospital'
+      WHEN type IN ('industrial') THEN 'industrial'
+      WHEN type IN ('park', 'common', 'garden', 'playground') THEN 'park'
+      WHEN type IN ('parking') THEN 'parking'
+      WHEN type IN ('pitch') THEN 'pitch'
+      WHEN type IN ('sand') THEN 'sand'
+      WHEN type IN ('school', 'university') THEN 'school'
+      WHEN type IN ('wood') THEN 'wood'
+      ELSE 'other' END AS class
     FROM osm_landusages
     WHERE geometry && !bbox!
-      AND z(!scale_denominator!) >= 12
+      AND z(!scale_denominator!) > 12
   ) AS QUERY
  ORDER BY area DESC
 ) AS data]]></Parameter>
@@ -91,7 +124,7 @@
     FROM osm_waterways
     WHERE geometry && !bbox!
       AND type IN ('river', 'canal', 'stream', 'ditch', 'drain')
-      AND z(!scale_denominator!) >= 15
+      AND z(!scale_denominator!) > 14
   ) AS QUERY
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
@@ -211,7 +244,18 @@
        <Parameter name="max_size"><![CDATA[512]]></Parameter>
        <Parameter name="password"><![CDATA[]]></Parameter>
        <Parameter name="port"><![CDATA[]]></Parameter>
-       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, type, round(st_area(geometry)) as area
+       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, type,
+    CASE
+      WHEN type IN ('cemetery') THEN 'cemetery'
+      WHEN type IN ('hospital') THEN 'hospital'
+      WHEN type IN ('industrial') THEN 'industrial'
+      WHEN type IN ('park', 'common', 'garden', 'playground') THEN 'park'
+      WHEN type IN ('parking') THEN 'parking'
+      WHEN type IN ('pitch') THEN 'pitch'
+      WHEN type IN ('sand') THEN 'sand'
+      WHEN type IN ('school', 'university') THEN 'school'
+      WHEN type IN ('wood') THEN 'wood'
+      ELSE 'other' END AS class
     FROM osm_landusages
     WHERE geometry && !bbox!
       AND z(!scale_denominator!) > 6
@@ -239,12 +283,14 @@
        <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, type, 0 as bridge, access, render, layer, tunnel,
   CASE
     WHEN type IN ('motorway', 'trunk') THEN 'motorway'
-    WHEN type IN ('primary', 'secondary') THEN 'mainroad'
-    WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'
+    WHEN type IN ('primary', 'secondary', 'tertiary') THEN 'main'
+    WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'tertiary_link') THEN 'motorway_link'
+    WHEN type IN ('secondary_link', 'residential', 'unclassified', 'road') THEN 'street'
+    WHEN type IN ('living_street', 'pedestrian') THEN 'street_limited'        
     WHEN type IN ('service', 'track') THEN 'service'
-    WHEN type IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'
-    WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
-    ELSE 'other' END AS stylegroup
+    WHEN type IN ('path', 'cycleway', 'footway', 'steps', 'bridleway') THEN 'path'
+    WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'major_rail'
+    ELSE 'other' END AS class
   FROM (
     SELECT *, '1_outline' AS render FROM osm_roads
     WHERE geometry && !bbox!
@@ -258,7 +304,7 @@
     WHERE geometry && !bbox!
       AND tunnel = 1
   ) AS tunnels
-  WHERE z(!scale_denominator!) >= 11
+  WHERE z(!scale_denominator!) > 10
   ORDER BY layer ASC, render ASC
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
@@ -285,11 +331,13 @@
     SELECT geometry, osm_id, type, tunnel, bridge, access, 'fill' AS render,
       CASE
         WHEN type IN ('motorway', 'trunk') THEN 'motorway'
-        WHEN type IN ('primary', 'secondary') THEN 'mainroad'
-        WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'
+        WHEN type IN ('primary', 'secondary', 'tertiary') THEN 'main'
+        WHEN type IN ('motorway_link', 'trunk_link') THEN 'motorway_link'
+        WHEN type IN ('primary_link', 'secondary_link', 'tertiary_link', 'residential', 'unclassified', 'road') THEN 'street'
+        WHEN type IN ('living_street', 'pedestrian') THEN 'street_limited'        
         WHEN type IN ('service', 'track') THEN 'service'
-        WHEN type IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'
-        WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
+        WHEN type IN ('path', 'cycleway', 'footway', 'steps', 'bridleway') THEN 'path'
+        WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'major_rail'
         ELSE 'other' END AS class
     FROM osm_roads_gen0
     WHERE geometry && !bbox!
@@ -300,11 +348,13 @@
     SELECT geometry, osm_id, type, tunnel, bridge, access, 'fill' AS render,
       CASE
         WHEN type IN ('motorway', 'trunk') THEN 'motorway'
-        WHEN type IN ('primary', 'secondary') THEN 'mainroad'
-        WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'
+        WHEN type IN ('primary', 'secondary', 'tertiary') THEN 'main'
+        WHEN type IN ('motorway_link', 'trunk_link') THEN 'motorway_link'
+        WHEN type IN ('primary_link', 'secondary_link', 'tertiary_link', 'residential', 'unclassified', 'road') THEN 'street'
+        WHEN type IN ('living_street', 'pedestrian') THEN 'street_limited'        
         WHEN type IN ('service', 'track') THEN 'service'
-        WHEN type IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'
-        WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
+        WHEN type IN ('path', 'cycleway', 'footway', 'steps', 'bridleway') THEN 'path'
+        WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'major_rail'
         ELSE 'other' END AS class
     FROM osm_roads_gen1
     WHERE geometry && !bbox!
@@ -316,17 +366,19 @@
     SELECT geometry, osm_id, type, tunnel, bridge, access, 'fill' AS render,
       CASE
         WHEN type IN ('motorway', 'trunk') THEN 'motorway'
-        WHEN type IN ('primary', 'secondary') THEN 'mainroad'
-        WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'
+        WHEN type IN ('primary', 'secondary', 'tertiary') THEN 'main'
+        WHEN type IN ('motorway_link', 'trunk_link') THEN 'motorway_link'
+        WHEN type IN ('primary_link', 'secondary_link', 'tertiary_link', 'residential', 'unclassified', 'road') THEN 'street'
+        WHEN type IN ('living_street', 'pedestrian') THEN 'street_limited'        
         WHEN type IN ('service', 'track') THEN 'service'
-        WHEN type IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'
-        WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
+        WHEN type IN ('path', 'cycleway', 'footway', 'steps', 'bridleway') THEN 'path'
+        WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'major_rail'
         ELSE 'other' END AS class
     FROM osm_roads
     WHERE geometry && !bbox!
       AND bridge = 0
       AND tunnel = 0
-      AND z(!scale_denominator!) >= 11
+      AND z(!scale_denominator!) > 10
   ) AS QUERY
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
@@ -351,11 +403,13 @@
        <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, type, bridge, access, render, layer, 0 as tunnel,
   CASE
     WHEN type IN ('motorway', 'trunk') THEN 'motorway'
-    WHEN type IN ('primary', 'secondary') THEN 'mainroad'
-    WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'
+    WHEN type IN ('primary', 'secondary', 'tertiary') THEN 'main'
+    WHEN type IN ('motorway_link', 'trunk_link', 'primary_link', 'tertiary_link') THEN 'motorway_link'
+    WHEN type IN ('secondary_link', 'residential', 'unclassified', 'road') THEN 'street'
+    WHEN type IN ('living_street', 'pedestrian') THEN 'street_limited'        
     WHEN type IN ('service', 'track') THEN 'service'
-    WHEN type IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'
-    WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
+    WHEN type IN ('path', 'cycleway', 'footway', 'steps', 'bridleway') THEN 'path'
+    WHEN type IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'major_rail'
     ELSE 'other' END AS class
   FROM (
     SELECT *, '1_outline' AS render FROM osm_roads
@@ -370,7 +424,7 @@
     WHERE geometry && !bbox!
       AND bridge = 1
   ) as bridges
-  WHERE z(!scale_denominator!) >= 11
+  WHERE z(!scale_denominator!) > 10
   ORDER BY layer ASC, render ASC
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
@@ -405,14 +459,14 @@
     SELECT geom as geometry, osm_id, admin_level, maritime, disputed
     FROM osm_boundaries_gen0
     WHERE geom && !bbox!
-      AND z(!scale_denominator!) BETWEEN 6 AND 9
+      AND z(!scale_denominator!) BETWEEN 7 AND 9
   
     -- osm_boundaries_gen1
     UNION ALL
     SELECT geom as geometry, osm_id, admin_level, maritime, disputed
     FROM osm_boundaries_gen1
     WHERE geom && !bbox!
-      AND z(!scale_denominator!) BETWEEN 9 AND 12
+      AND z(!scale_denominator!) BETWEEN 10 AND 12
 
     -- osm_boundaries
     UNION ALL
