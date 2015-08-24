@@ -10,9 +10,9 @@ if [ -z "$1" ]; then
 fi
 
 db=$1
-cachedir="cache_$1"
+cachedir="$1-cache"
 
-mkdir -p data
+mkdir -p data/$cachedir
 cd data
 
 urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
