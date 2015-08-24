@@ -46,8 +46,8 @@ db_conf = Options(
     # db='osm',
     host='localhost',
     port=5432,
-    user='mapbox',
-    password='mapbox',
+    user='osm',
+    password='osm',
     sslmode='allow',
     prefix='osm_new_',
     proj='epsg:900913',
@@ -545,41 +545,3 @@ roads_gen0 = UnionView(
     ),
     mappings = [railways_gen0, mainroads_gen0, motorways_gen0],
 )
-
-suburbs = Polygons(
-    name = 'suburbs',
-    mapping = {
-        'place': (
-            'city',
-            'town'
-        )
-    }
-)
-
-gas_distribution_stations = Polygons(
-    name = 'gas_distribution_stations',
-    mapping = {
-        'pipeline': (
-            'substation',
-        ),
-        'man_made': (
-            'distribution_station',
-        ),
-        'substation': (
-            'distribution',
-        ),
-        'substance': (
-            'gas',
-        ),
-})
-
-wastewaters = LineStrings(
-    name='wastewaters',
-    mapping = {
-        'waterway': (
-            'drain',
-        ),
-        'waterway': (
-            'ditch',
-        ),
-})
