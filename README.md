@@ -9,6 +9,7 @@ OSM Bright 2 Mapbox Studio source
 ## Dependencies
 
 * PostgreSQL
+* shp2pgsql
 * imposm
 
 ## Create database
