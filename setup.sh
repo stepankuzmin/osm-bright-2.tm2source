@@ -12,6 +12,9 @@ fi
 db=$1
 cachedir="cache_$1"
 
+mkdir -p data
+cd data
+
 urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
       'http://download.geofabrik.de/asia/russia-asian-part-latest.osm.pbf')
 
@@ -23,7 +26,7 @@ do
   echo "${green}[*] Importing $filename${reset}"
 
   ~/venv/bin/imposm -d $db \
-                    -m imposm-mapping.py \
+                    -m ../imposm-mapping.py \
                     --cache-dir=$cachedir \
                     --read \
                     --write \
