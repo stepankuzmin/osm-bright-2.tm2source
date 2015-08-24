@@ -11,11 +11,18 @@ OSM Bright 2 Mapbox Studio source
 * PostgreSQL
 * imposm
 
+## Create database
+
+```shell
+createdb <database>
+psql -d <database> -c 'create extension postgis;'
+psql -d <database> -f functions.sql
+```
+
 ## Setup
 
-Setup database
+Load openstreetmap data to database
 
 ```shell
 ./setup.sh <database>
 ```
-
