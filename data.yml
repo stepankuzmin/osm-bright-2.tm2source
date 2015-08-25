@@ -1,14 +1,15 @@
 _prefs: 
-  disabled: []
+  disabled: 
+    - poi_label
   inspector: false
   mapid: ''
   rev: ''
   saveCenter: true
 attribution: ''
 center: 
-  - 131.8933
-  - 43.0949
-  - 13
+  - 131.8849
+  - 43.1147
+  - 14
 description: OSM Bright 2
 Layer: 
   - id: landuse
@@ -617,33 +618,32 @@ Layer:
       password: ''
       port: ''
       table: |-
-        (
-          /* TODO get real name_en/name_de/name_es */
-          /* TODO calculate real ranks and ldir */
-          select geometry, osm_id, name, type,
-            null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
-            from osm_places
-            where type = 'city'
-            and geometry && !bbox!
-          union all
-          select geometry, osm_id, name, type,
-            null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
-            from osm_places
-            where type = 'town' and z(!scale_denominator!) >= 7
-            and geometry && !bbox!
-          union all
-          select geometry, osm_id, name, type,
-            null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
-            from osm_places
-            where type = 'village' and z(!scale_denominator!) >= 10
-            and geometry && !bbox!
-          union all
-          select geometry, osm_id, name, type,
-            null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
-            from osm_places
-            where type in ('hamlet', 'suburb','neighbourhood') and
-              z(!scale_denominator!) >= 12
-              and geometry && !bbox!
+        /* TODO get real name_en/name_de/name_es */
+        /* TODO calculate real ranks and ldir */
+        ( SELECT * FROM (
+            SELECT DISTINCT ON(LabelGrid(geometry, 64)) *
+            FROM (
+              select geometry, osm_id, name, name as name_en, type, population,
+                null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
+                from osm_places
+                where type = 'city'
+                and geometry && !bbox!
+              union all
+              select geometry, osm_id, name, name as name_en, type, population,
+                null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
+                from osm_places
+                where type = 'town' and z(!scale_denominator!) >= 7
+                and geometry && !bbox!
+              union all
+              select geometry, osm_id, name, name as name_en, type, population,
+                null as capital, 'SE' as ldir, 1 as localrank, null as scalerank
+                from osm_places
+                where type in ('hamlet', 'suburb','neighbourhood') and z(!scale_denominator!) >= 10
+                and geometry && !bbox!
+            ) AS places
+            ORDER BY LabelGrid(geometry, 64), population DESC NULLS LAST, osm_id
+          ) AS ordered
+          ORDER BY population DESC NULLS LAST, osm_id
         ) AS data
       type: postgis
       user: ''
@@ -653,7 +653,9 @@ Layer:
       ldir: String
       localrank: Number
       name: String
+      name_en: String
       osm_id: Number
+      population: Number
       scalerank: String
       type: String
     properties: 
