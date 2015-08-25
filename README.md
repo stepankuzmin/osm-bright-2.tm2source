@@ -23,7 +23,7 @@ psql -d <database> -c 'create extension postgis;'
 ## Setup project
 
 ```shell
-git@github.com:mystand/osm-bright-2.tm2source.git
+git clone git@github.com:mystand/osm-bright-2.tm2source.git
 cd osm-bright-2.tm2source
 git submodule init
 psql -d <database> -f postgis-vt-util/postgis-vt-util.sql
