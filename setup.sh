@@ -18,7 +18,7 @@ cd data
 urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
       'http://download.geofabrik.de/asia/russia-asian-part-latest.osm.pbf')
 
-# Download and import openstreetmap data
+Download and import openstreetmap data
 for url in "${urls[@]}"
 do
   filename=$(basename $url)
@@ -56,7 +56,7 @@ if [ ! -f water_polygons.sql ]; then
 fi
 
 echo "${green}[*] Creating indices${reset}"
-psql -d $db -f create-indices.sql
+psql -d $db -f ../create-indices.sql
 
 # Done!
 echo "${green}[*] Done${reset}"
