@@ -1,3 +1,6 @@
 [submodule "postgis-vt-util"]
 	path = postgis-vt-util
 	url = https://github.com/mapbox/postgis-vt-util
+[submodule "osm-boundaries"]
+	path = osm-boundaries
+	url = https://github.com/mapbox/osm-boundaries
