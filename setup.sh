@@ -22,33 +22,38 @@ urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
 for url in "${urls[@]}"
 do
   filename=$(basename $url)
-  echo "${green}[*] Downloading $url${reset}"
-  curl -O $url
-  echo "${green}[*] Importing $filename${reset}"
+  if [ ! -f filename ]; then
+    echo "${green}[*] Downloading $url${reset}"
+    curl -O $url
 
-  ~/venv/bin/imposm -d $db \
-                    -m ../imposm-mapping.py \
-                    --cache-dir=$cachedir \
-                    --read \
-                    --write \
-                    --merge-cache \
-                    --optimize \
-                    --deploy-production-tables \
-                    $filename
+    echo "${green}[*] Importing $filename${reset}"
+    ~/venv/bin/imposm -d $db \
+                      -m ../imposm-mapping.py \
+                      --cache-dir=$cachedir \
+                      --read \
+                      --write \
+                      --merge-cache \
+                      --optimize \
+                      --deploy-production-tables \
+                      $filename
+  fi
 done
 
 # Download and import water polygons
 if [ ! -f water_polygons.sql ]; then
   url="http://data.openstreetmapdata.com/water-polygons-split-3857.zip"
   filename=$(basename $url)
+
   echo "${green}[*] Downloading $url${reset}"
   curl -O $url
+
   echo "${green}[*] Processing $filename${reset}"
   unzip $filename
   shp2pgsql -I -s 3857 water-polygons-split-3857/water_polygons.shp water_polygons > water_polygons.sql
+
+  echo "${green}[*] Importing $filename${reset}"
+  psql -d $db -f water_polygons.sql
 fi
-echo "${green}[*] Importing $filename${reset}"
-psql -d $db -f water_polygons.sql
 
 echo "${green}[*] Creating indices${reset}"
 psql -d $db -f create-indices.sql
