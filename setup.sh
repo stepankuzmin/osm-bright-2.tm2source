@@ -50,7 +50,8 @@ fi
 echo "${green}[*] Importing $filename${reset}"
 psql -d $db -f water_polygons.sql
 
-
+echo "${green}[*] Creating indices${reset}"
+psql -d $db -f create-indices.sql
 
 # Done!
 echo "${green}[*] Done${reset}"
