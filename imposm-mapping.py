@@ -43,11 +43,11 @@ imposm.config.relation_builder = 'contains'
 set_default_name_type(LocalizedName(['name:ru', 'int_name', 'name']))
 
 db_conf = Options(
-    # db='osm',
+    db='osm_24_08_15',
     host='localhost',
     port=5432,
-    user='osm',
-    password='osm',
+    user='mapbox',
+    password='mapbox',
     sslmode='allow',
     prefix='osm_new_',
     proj='epsg:900913',

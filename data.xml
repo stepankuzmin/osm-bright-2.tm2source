@@ -3,10 +3,10 @@
 <Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
 
 <Parameters>
-  <Parameter name="center">131.8744,43.1178,14</Parameter>
+  <Parameter name="center">131.9054,43.1174,14</Parameter>
   <Parameter name="description"><![CDATA[OSM Bright 2]]></Parameter>
   <Parameter name="format">pbf</Parameter>
-  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","type":"String","area":"Number","class":"String"}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"water","description":"","fields":{}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}},{"id":"building","description":"","fields":{"osm_id":"Number","type":"String","name":"String","area":"Number"}},{"id":"landuse_overlay","description":"","fields":{"osm_id":"Number","type":"String","class":"String"}},{"id":"tunnel","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"road","description":"","fields":{"osm_id":"Number","type":"String","tunnel":"Number","bridge":"Number","access":"String","render":"String","class":"String"}},{"id":"bridge","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"admin","description":"","fields":{"osm_id":"Number","admin_level":"Number","maritime":"Number","disputed":"Number"}},{"id":"country_label","description":"","fields":{"osm_id":"Number","name":"String","type":"String"}},{"id":"place_label","description":"","fields":{"osm_id":"Number","name":"String","type":"String"}},{"id":"road_label","description":"","fields":{"osm_id":"Number","name":"String","ref":"String","class":"String"}}]}]]></Parameter>
+  <Parameter name="json"><![CDATA[{"vector_layers":[{"id":"landuse","description":"","fields":{"osm_id":"Number","type":"String","area":"Number","class":"String"}},{"id":"waterway","description":"","fields":{"osm_id":"Number","class":"String"}},{"id":"water","description":"","fields":{}},{"id":"aeroway","description":"","fields":{"osm_id":"Number","type":"String"}},{"id":"building","description":"","fields":{"osm_id":"Number","type":"String","name":"String","area":"Number"}},{"id":"landuse_overlay","description":"","fields":{"osm_id":"Number","type":"String","class":"String"}},{"id":"tunnel","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"road","description":"","fields":{"osm_id":"Number","type":"String","tunnel":"Number","bridge":"Number","access":"String","render":"String","class":"String"}},{"id":"bridge","description":"","fields":{"osm_id":"Number","type":"String","bridge":"Number","access":"String","render":"String","layer":"Number","tunnel":"Number","class":"String"}},{"id":"admin","description":"","fields":{"osm_id":"Number","admin_level":"Number","maritime":"Number","disputed":"Number"}}]}]]></Parameter>
   <Parameter name="maxzoom">14</Parameter>
   <Parameter name="minzoom">0</Parameter>
   <Parameter name="name"><![CDATA[OSM Bright 2]]></Parameter>
@@ -149,7 +149,7 @@
        <Parameter name="table"><![CDATA[( SELECT * FROM (
     -- water_polygons
     SELECT geom as geometry
-    FROM water
+    FROM water_polygons
     WHERE geom && !bbox!
 
     -- water_gen0
@@ -437,7 +437,7 @@
   srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
     
     <Datasource>
-       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
+       <Parameter name="dbname"><![CDATA[osm_boundaries]]></Parameter>
        <Parameter name="extent"><![CDATA[-20037508.34,-20037508.34,20037508.34,20037508.34]]></Parameter>
        <Parameter name="geometry_field"><![CDATA[geom]]></Parameter>
        <Parameter name="geometry_table"><![CDATA[]]></Parameter>
@@ -448,107 +448,33 @@
        <Parameter name="port"><![CDATA[]]></Parameter>
        <Parameter name="table"><![CDATA[( SELECT * FROM (
     -- osm_boundaries_gen0
-    SELECT geom, osm_id, admin_level, maritime, disputed
-    FROM osm_boundaries_gen0
+    SELECT geom_gen0 as geom, osm_id, admin_level, maritime, disputed
+    FROM carto_boundary
     WHERE geom && !bbox!
       AND admin_level < 3
       AND z(!scale_denominator!) BETWEEN 1 AND 6
 
     -- osm_boundaries_gen0
     UNION ALL
-    SELECT geom, osm_id, admin_level, maritime, disputed
-    FROM osm_boundaries_gen0
+    SELECT geom_gen0 as geom, osm_id, admin_level, maritime, disputed
+    FROM carto_boundary
     WHERE geom && !bbox!
       AND z(!scale_denominator!) BETWEEN 7 AND 9
   
     -- osm_boundaries_gen1
     UNION ALL
-    SELECT geom as geometry, osm_id, admin_level, maritime, disputed
-    FROM osm_boundaries_gen1
+    SELECT geom_gen1 as geom, osm_id, admin_level, maritime, disputed
+    FROM carto_boundary
     WHERE geom && !bbox!
       AND z(!scale_denominator!) BETWEEN 10 AND 12
 
     -- osm_boundaries
     UNION ALL
     SELECT geom, osm_id, admin_level, maritime, disputed
-    FROM osm_boundaries
+    FROM carto_boundary
     WHERE geom && !bbox!
       AND z(!scale_denominator!) > 12
   ) AS QUERY
-) AS data]]></Parameter>
-       <Parameter name="type"><![CDATA[postgis]]></Parameter>
-       <Parameter name="user"><![CDATA[]]></Parameter>
-    </Datasource>
-  </Layer>
-
-<Layer name="country_label"
-  buffer-size="8"
-  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
-    
-    <Datasource>
-       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
-       <Parameter name="extent"><![CDATA[-20037508.34,-20037508.34,20037508.34,20037508.34]]></Parameter>
-       <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
-       <Parameter name="geometry_table"><![CDATA[]]></Parameter>
-       <Parameter name="host"><![CDATA[]]></Parameter>
-       <Parameter name="key_field"><![CDATA[]]></Parameter>
-       <Parameter name="max_size"><![CDATA[512]]></Parameter>
-       <Parameter name="password"><![CDATA[]]></Parameter>
-       <Parameter name="port"><![CDATA[]]></Parameter>
-       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, name, type
-  FROM osm_places
-  WHERE geometry && !bbox!
-    AND type = 'country'
-    AND z(!scale_denominator!) BETWEEN 1 AND 6
-) AS data]]></Parameter>
-       <Parameter name="type"><![CDATA[postgis]]></Parameter>
-       <Parameter name="user"><![CDATA[]]></Parameter>
-    </Datasource>
-  </Layer>
-
-<Layer name="place_label"
-  buffer-size="8"
-  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
-    
-    <Datasource>
-       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
-       <Parameter name="extent"><![CDATA[-20037508.34,-20037508.34,20037508.34,20037508.34]]></Parameter>
-       <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
-       <Parameter name="geometry_table"><![CDATA[]]></Parameter>
-       <Parameter name="host"><![CDATA[]]></Parameter>
-       <Parameter name="key_field"><![CDATA[]]></Parameter>
-       <Parameter name="max_size"><![CDATA[512]]></Parameter>
-       <Parameter name="password"><![CDATA[]]></Parameter>
-       <Parameter name="port"><![CDATA[]]></Parameter>
-       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, name, type
-  FROM osm_places
-  WHERE geometry && !bbox!
-    AND type IN ('city', 'town', 'village', 'hamlet')
-    AND z(!scale_denominator!) >= 4
-) AS data]]></Parameter>
-       <Parameter name="type"><![CDATA[postgis]]></Parameter>
-       <Parameter name="user"><![CDATA[]]></Parameter>
-    </Datasource>
-  </Layer>
-
-<Layer name="road_label"
-  buffer-size="8"
-  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
-    
-    <Datasource>
-       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
-       <Parameter name="extent"><![CDATA[-20037508.34,-20037508.34,20037508.34,20037508.34]]></Parameter>
-       <Parameter name="geometry_field"><![CDATA[geometry]]></Parameter>
-       <Parameter name="geometry_table"><![CDATA[]]></Parameter>
-       <Parameter name="host"><![CDATA[]]></Parameter>
-       <Parameter name="key_field"><![CDATA[]]></Parameter>
-       <Parameter name="max_size"><![CDATA[512]]></Parameter>
-       <Parameter name="password"><![CDATA[]]></Parameter>
-       <Parameter name="port"><![CDATA[]]></Parameter>
-       <Parameter name="table"><![CDATA[( SELECT geometry, osm_id, name, ref, type as class
-  FROM osm_roads
-  WHERE geometry && !bbox!
-    AND z(!scale_denominator!) >= 15
 ) AS data]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
        <Parameter name="user"><![CDATA[]]></Parameter>
