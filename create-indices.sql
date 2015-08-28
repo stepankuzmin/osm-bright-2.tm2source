@@ -23,4 +23,4 @@ CREATE INDEX osm_minorroads_tunnel_idx ON osm_minorroads(tunnel);
 CREATE INDEX osm_railways_tunnel_idx ON osm_railways(tunnel);
 
 CREATE INDEX water_polygons_idx ON water_polygons USING gist (geom) WITH (FILLFACTOR=100);
--- CREATE INDEX carto_boundary_idx ON carto_boundary USING gist (geom) WITH (FILLFACTOR=100);
+CREATE INDEX carto_boundary_idx ON carto_boundary USING gist (geom) WITH (FILLFACTOR=100);

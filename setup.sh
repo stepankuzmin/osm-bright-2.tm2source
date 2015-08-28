@@ -16,7 +16,11 @@ mkdir -p data/$cachedir
 cd data
 
 urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
-      'http://download.geofabrik.de/asia/russia-asian-part-latest.osm.pbf')
+      'http://download.geofabrik.de/asia/russia-asian-part-latest.osm.pbf'
+      'http://download.geofabrik.de/asia/north-korea-latest.osm.pbf'
+      'http://download.geofabrik.de/asia/south-korea-latest.osm.pbf'
+      'http://download.geofabrik.de/asia/china-latest.osm.pbf'
+      'http://download.geofabrik.de/asia/japan-latest.osm.pbf')
 
 Download and import openstreetmap data
 for url in "${urls[@]}"
@@ -56,7 +60,7 @@ if [ ! -f water_polygons.sql ]; then
 fi
 
 echo "${green}[*] Creating indices${reset}"
-psql -d $db -f ../create-indices.sql
+# psql -d $db -f ../create-indices.sql
 
 # Done!
 echo "${green}[*] Done${reset}"
