@@ -22,11 +22,11 @@ urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
       'http://download.geofabrik.de/asia/china-latest.osm.pbf'
       'http://download.geofabrik.de/asia/japan-latest.osm.pbf')
 
-Download and import openstreetmap data
+# Download and import openstreetmap data
 for url in "${urls[@]}"
 do
   filename=$(basename $url)
-  if [ ! -f filename ]; then
+  if [ ! -f $filename ]; then
     echo "${green}[*] Downloading $url${reset}"
     curl -O $url
 
@@ -59,7 +59,7 @@ if [ ! -f water_polygons.sql ]; then
   psql -d $db -f water_polygons.sql
 fi
 
-echo "${green}[*] Creating indices${reset}"
+# echo "${green}[*] Creating indices${reset}"
 # psql -d $db -f ../create-indices.sql
 
 # Done!
