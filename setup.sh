@@ -17,6 +17,8 @@ cd data
 
 urls=('http://download.geofabrik.de/europe/russia-european-part-latest.osm.pbf'
       'http://download.geofabrik.de/asia/russia-asian-part-latest.osm.pbf'
+      'http://download.geofabrik.de/europe/ukraine-latest.osm.pbf'
+      'http://download.geofabrik.de/asia/kazakhstan-latest.osm.pbf'
       'http://download.geofabrik.de/asia/north-korea-latest.osm.pbf'
       'http://download.geofabrik.de/asia/south-korea-latest.osm.pbf'
       'http://download.geofabrik.de/asia/china-latest.osm.pbf'
